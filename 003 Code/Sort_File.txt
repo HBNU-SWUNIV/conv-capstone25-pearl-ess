@@ -1,0 +1,46 @@
+import pandas as pd
+from glob import glob
+import os
+from tqdm import tqdm
+import warnings
+
+warnings.filterwarnings("ignore")
+
+file_name = glob(f"B/*")
+
+for i in range(len(file_name)):
+    file_name[i] = file_name[i].split("/")[1]
+file_name.sort()
+
+ess_csv = glob(f"B/{file_name[8]}/*.csv")
+ess_csv.sort()
+
+new_dataframe = pd.DataFrame()
+for idx, name in enumerate(ess_csv):
+    csv_file = pd.read_csv(name, encoding = "cp949")
+    new_dataframe = pd.concat([new_dataframe, csv_file], axis = 0)
+
+col_nan_threshold = 0.9
+nan_ratio_per_col = new_dataframe.isna().mean()
+drop_index = nan_ratio_per_col[nan_ratio_per_col > col_nan_threshold].index
+new_dataframe.drop(columns = drop_index, inplace = True)
+module_list = new_dataframe["module_no"].unique().astype("int32")
+rack_list = new_dataframe["rack_no"].unique().astype("int32")
+module_list = sorted(module_list)
+rack_list = sorted(rack_list)
+new_dataframe[new_dataframe.columns[0]] = pd.to_datetime(new_dataframe[new_dataframe.columns[0]])
+
+for col in new_dataframe.columns:
+    if new_dataframe[col].dtype == "int64":
+        new_dataframe[col] = new_dataframe[col].astype("int32")
+    elif csv_file[col].dtype == "float64":
+        new_dataframe[col] = new_dataframe[col].astype("float32")
+
+file_path = f"preprocessing_B/{file_name[8]}"
+os.makedirs(file_path, exist_ok = True)
+
+for i in rack_list:
+    for j in module_list:
+        ess_new = new_dataframe.loc[(new_dataframe["rack_no"] == i) & (new_dataframe["module_no"] == j) & (new_dataframe["bank_no"] == 1)]
+        ess_new.sort_values(by = ess_new.columns[0], inplace = True)
+        ess_new.to_csv(f"{file_path}/rack{i}_module{j}.csv")
