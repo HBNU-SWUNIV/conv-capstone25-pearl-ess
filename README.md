@@ -30,8 +30,8 @@
        - 1차, 2차 보간값과 가중치 W를 활용하여 최종 보간값 산출
        - 급변 구간에서의 정보 손실 최소화 및 패턴이 안정적인 경우에서 기존 보간의 단순성 유지를 통한 이상 탐지 성능 향상 효과
     3. 이상탐지 알고리즘
-      - 시계열 데이터를 Spectrogram으로 변환 후 Convolutional Neural Network 수행
-      - 성능지표는 Accuracy, Recall, Precison 사용
+       - 시계열 데이터를 Spectrogram으로 변환 후 Convolutional Neural Network 수행
+       - 성능지표는 Accuracy, Recall, Precison 사용
 
 ## Conclusion
   - ### 보간
